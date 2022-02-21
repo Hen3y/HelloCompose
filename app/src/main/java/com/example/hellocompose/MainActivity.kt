@@ -7,7 +7,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,7 +32,12 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MyApp() {
     // by - property delegate 属性委托
-    var shouldShowOnBoarding by remember { mutableStateOf(true) }
+    // var shouldShowOnBoarding by remember { mutableStateOf(true) }
+
+    // The remember function works only as long as the composable is kept in the Composition
+    // Configuration changes会导致app restart，从而导致之前remember的state丢失
+    // 应用rememberSaveable储存的值在activity或process recreation时保留
+    var shouldShowOnBoarding by rememberSaveable { mutableStateOf(true) }
 
     if (shouldShowOnBoarding) {
         // 如果要在子组件修改state，不应该把state直接传递下去，而是传递一个修改state的callback function
@@ -45,7 +54,8 @@ fun Greeting(name: String) {
 
     // val expanded = remember(calculation = { -> mutableStateOf(false) })
     // line above could be simplified as below
-    val expanded = remember { mutableStateOf(false) }
+    // val expanded = remember { mutableStateOf(false) }
+    val expanded = rememberSaveable { mutableStateOf(false) }
     val extraPadding = if (expanded.value) 48.dp else 0.dp
 
     Surface(
