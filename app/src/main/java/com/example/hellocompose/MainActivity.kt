@@ -4,6 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -71,8 +73,9 @@ fun Greeting(name: String) {
 
 @Composable
 fun Greetings(names: List<String>) {
-    Column(modifier = Modifier.padding(vertical = 4.dp)) {
-        for (name in names) {
+    // use LazyColumn/LazyRow for large size list or collection to guarantee app performance
+    LazyColumn(modifier = Modifier.padding(vertical = 4.dp)) {
+        items(items = names) { name ->
             Greeting(name = name)
         }
     }
