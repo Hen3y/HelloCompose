@@ -3,6 +3,9 @@ package com.example.hellocompose
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -56,7 +59,19 @@ fun Greeting(name: String) {
     // line above could be simplified as below
     // val expanded = remember { mutableStateOf(false) }
     val expanded = rememberSaveable { mutableStateOf(false) }
-    val extraPadding = if (expanded.value) 48.dp else 0.dp
+
+    /*
+        Any animation created with animate*AsState is interruptible.
+        This means that if the target value changes in the middle of the animation,
+        animate*AsState restarts the animation and points to the new value.
+     */
+    val extraPadding by animateDpAsState(
+        targetValue = if (expanded.value) 48.dp else 0.dp,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        )
+    )
 
     Surface(
         color = MaterialTheme.colors.primary,
