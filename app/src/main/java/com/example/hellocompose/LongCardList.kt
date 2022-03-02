@@ -4,25 +4,30 @@ import android.content.res.Configuration
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.annotation.ExperimentalCoilApi
+import coil.compose.rememberImagePainter
 import com.example.hellocompose.ui.theme.HelloComposeTheme
+import kotlinx.coroutines.launch
+
+private const val LIST_SIZE = 50
 
 @Composable
 fun LongCardList() {
@@ -38,10 +43,11 @@ fun LongCardList() {
         // 如果要在子组件修改state，不应该把state直接传递下去，而是传递一个修改state的callback function
         OnBoardingScreen(onClickContinue = { shouldShowOnBoarding = false })
     } else {
-        Greetings(names = List(1000) { "$it" })
+        Greetings(names = List(LIST_SIZE) { "$it" })
     }
 }
 
+@OptIn(ExperimentalCoilApi::class)
 @Composable
 fun CardContent(name: String) {
     // 使用mutableStateOf()创建一个state
@@ -81,14 +87,23 @@ fun CardContent(name: String) {
                 .weight(1f)
                 .padding(12.dp)
         ) {
-            Text(text = "Hello,")
-            // copy() allows to customize existing predefined styles
-            Text(
-                text = "Index: $name",
-                style = MaterialTheme.typography.h4.copy(
-                    fontWeight = FontWeight.ExtraBold
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    painter = rememberImagePainter(data = "https://developer.android.com/images/brand/Android_Robot.png"),
+                    contentDescription = "Android Logo",
+                    modifier = Modifier.size(48.dp)
                 )
-            )
+                Column(modifier = Modifier.padding(start = 8.dp)) {
+                    Text(text = "Hello,")
+                    // copy() allows to customize existing predefined styles
+                    Text(
+                        text = "Index: $name",
+                        style = MaterialTheme.typography.h4.copy(
+                            fontWeight = FontWeight.ExtraBold
+                        )
+                    )
+                }
+            }
             if (expanded) {
                 Text(text = "Congratulations! You learned the basics of Compose! ".repeat(3))
             }
@@ -124,11 +139,41 @@ fun Greeting(name: String) {
 }
 
 @Composable
+fun ScrollControlButton(scrollState: LazyListState, index: Int) {
+    // We save the coroutine scope where our animated scroll will be executed
+    // 为避免在滚动时阻止列表呈现，滚动 API 属于挂起函数。因此，我们需要在协程中调用它们
+    val coroutineScope = rememberCoroutineScope()
+
+    Button(
+        modifier = Modifier.padding(8.dp),
+        onClick = {
+            coroutineScope.launch {
+                // scroll to item by index with animation
+                scrollState.animateScrollToItem(index)
+            }
+        }) {
+        Text(text = if (index == 0) "Go to Top" else "Go to Bottom")
+    }
+}
+
+@Composable
 fun Greetings(names: List<String>) {
-    // use LazyColumn/LazyRow for large size list or collection to guarantee app performance
-    LazyColumn(modifier = Modifier.padding(vertical = 4.dp)) {
-        items(items = names) { name ->
-            Greeting(name = name)
+    // We save the scrolling position with this state that can also be used to programmatically scroll the list
+    // 记录滚动位置
+    val scrollState = rememberLazyListState()
+
+    Column {
+        // control buttons
+        Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
+            ScrollControlButton(scrollState, 0)
+            ScrollControlButton(scrollState, LIST_SIZE - 1)
+        }
+
+        // use LazyColumn/LazyRow for large size list or collection to guarantee app performance
+        LazyColumn(state = scrollState) {
+            items(items = names) { name ->
+                Greeting(name = name)
+            }
         }
     }
 }
@@ -164,7 +209,7 @@ fun OnBoardingScreen(onClickContinue: () -> Unit) {
 @Composable
 fun DefaultPreview() {
     HelloComposeTheme {
-        Greetings(names = List(1000) { "$it" })
+        Greetings(names = List(LIST_SIZE) { "$it" })
     }
 }
 
