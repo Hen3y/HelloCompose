@@ -1,19 +1,18 @@
 package com.example.hellocompose.todolist
 
-import androidx.lifecycle.MutableLiveData
+import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 
 class TodoViewModel : ViewModel() {
 
-    // use LiveData to store state
-    private val _todoItems = MutableLiveData<List<TodoItem>>()
-    var todoItems = _todoItems
+    var todoItems = mutableStateListOf<TodoItem>()
+        private set
 
     fun addItem(item: TodoItem) {
-
+        todoItems.add(item)
     }
 
     fun removeItem(item: TodoItem) {
-
+        todoItems.remove(item)
     }
 }

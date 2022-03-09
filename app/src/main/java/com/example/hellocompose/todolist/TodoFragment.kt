@@ -15,8 +15,6 @@ import androidx.compose.material.Button
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.tooling.preview.Preview
@@ -62,10 +60,10 @@ private fun TodoScreen(todoViewModel: TodoViewModel) {
     // .observeAsState 会观察 LiveData<T> 并将其转换为 State<T> 对象，让 Compose 可以响应值的变化
     // listOf() 是一个初始值，用于避免在初始化 LiveData 之前可能出现 null 结果
     // by 是 Kotlin 中的属性委托语法，使我们可以自动将 State<List<TodoItem>> 从 observeAsState 解封为标准 List<TodoItem>
-    val items: List<TodoItem> by todoViewModel.todoItems.observeAsState(listOf())
+//    val items: List<TodoItem> by todoViewModel.todoItems.observeAsState(listOf())
 
     TodoList(
-        items = items,
+        items = todoViewModel.todoItems,
         onAddItem = { todoViewModel.addItem(it) },
         onRemoveItem = { todoViewModel.removeItem(it) })
 }
