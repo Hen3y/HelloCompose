@@ -64,11 +64,6 @@ class TodoFragment : Fragment() {
 
 @Composable
 fun TodoScreen(todoViewModel: TodoViewModel) {
-    // .observeAsState 会观察 LiveData<T> 并将其转换为 State<T> 对象，让 Compose 可以响应值的变化
-    // listOf() 是一个初始值，用于避免在初始化 LiveData 之前可能出现 null 结果
-    // by 是 Kotlin 中的属性委托语法，使我们可以自动将 State<List<TodoItem>> 从 observeAsState 解封为标准 List<TodoItem>
-//    val items: List<TodoItem> by todoViewModel.todoItems.observeAsState(listOf())
-
     TodoList(
         items = todoViewModel.todoItems,
         onAddItem = { todoViewModel.addItem(it) },
