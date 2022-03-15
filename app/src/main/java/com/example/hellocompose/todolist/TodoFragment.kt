@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.Button
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
@@ -25,10 +26,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -116,7 +119,7 @@ private fun TodoRow(
     Row(
         modifier = modifier
             .fillMaxSize()
-            .padding(vertical = 8.dp, horizontal = 16.dp)
+            .padding(vertical = 8.dp, horizontal = 8.dp)
             .clickable { onItemClicked(item) },
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
@@ -132,12 +135,21 @@ private fun TodoRow(
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun TodoItemInput(
     modifier: Modifier = Modifier,
     onClickAddItem: (TodoItem) -> Unit
 ) {
     val (text, setText) = remember { mutableStateOf("") }
+
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    val submit = {
+        onClickAddItem(TodoItem(task = text))
+        setText("")
+        keyboardController?.hide()
+    }
 
     Row(
         modifier = modifier
@@ -151,17 +163,17 @@ private fun TodoItemInput(
             value = text,
             onValueChange = { setText(it) },
             singleLine = true,
-            colors = TextFieldDefaults.textFieldColors(backgroundColor = Color.Transparent)
+            colors = TextFieldDefaults.textFieldColors(backgroundColor = Color.Transparent),
+            keyboardActions = KeyboardActions(onDone = {
+                submit()
+            }),
         )
         Button(
             modifier = Modifier
                 .padding(8.dp)
                 .clip(RoundedCornerShape(16.dp)),
             enabled = text.isNotBlank(),
-            onClick = {
-                onClickAddItem(TodoItem(task = text))
-                setText("")
-            }
+            onClick = { submit() }
         ) {
             Text(text = "Add")
         }
