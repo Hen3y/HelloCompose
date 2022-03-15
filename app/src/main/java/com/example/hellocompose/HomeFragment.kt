@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.R
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -68,6 +67,12 @@ fun NavigateButton(activity: FragmentActivity, screen: Screens) {
         onClick = {
             val fragmentManager = activity.supportFragmentManager
             val transaction = fragmentManager.beginTransaction()
+            transaction.setCustomAnimations(
+                R.anim.h_fragment_enter,
+                R.anim.h_fragment_exit,
+                R.anim.h_fragment_pop_enter,
+                R.anim.h_fragment_pop_exit
+            )
             transaction.replace(R.id.content, screen.destination)
             transaction.addToBackStack(null)
             transaction.commit()
