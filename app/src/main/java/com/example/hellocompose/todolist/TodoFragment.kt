@@ -14,14 +14,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material.TextField
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -51,9 +57,9 @@ class TodoFragment : Fragment() {
     }
 
     // 在onCreateView之后运行
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-    }
+//    override fun onActivityCreated(savedInstanceState: Bundle?) {
+//        super.onActivityCreated(savedInstanceState)
+//    }
 
     // 在onCreateView之前运行
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -76,26 +82,27 @@ private fun TodoList(
     onAddItem: (TodoItem) -> Unit,
     onRemoveItem: (TodoItem) -> Unit
 ) {
-    Surface {
-        Column {
-            LazyColumn(
-                modifier = Modifier.weight(1f),
-                contentPadding = PaddingValues(16.dp)
-            ) {
-                items(items) { item ->
-                    TodoRow(item) { onAddItem(item) }
-                }
+    Column {
+        TodoItemInput(
+            onClickAddItem = onAddItem
+        )
+        LazyColumn(
+            modifier = Modifier.weight(1f),
+            contentPadding = PaddingValues(16.dp)
+        ) {
+            items(items) { item ->
+                TodoRow(item) { onAddItem(item) }
             }
-            Button(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxWidth(),
-                onClick = { onAddItem(TodoItem("Test")) }) {
-                Text(
-                    fontSize = MaterialTheme.typography.body1.copy(fontSize = 24.sp).fontSize,
-                    text = "Add An Item"
-                )
-            }
+        }
+        Button(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            onClick = { if (items.isNotEmpty()) onRemoveItem(items.last()) }) {
+            Text(
+                fontSize = MaterialTheme.typography.body1.copy(fontSize = 24.sp).fontSize,
+                text = "Remove the Last Item"
+            )
         }
     }
 }
@@ -125,6 +132,42 @@ private fun TodoRow(
     }
 }
 
+@Composable
+private fun TodoItemInput(
+    modifier: Modifier = Modifier,
+    onClickAddItem: (TodoItem) -> Unit
+) {
+    val (text, setText) = remember { mutableStateOf("") }
+
+    Row(
+        modifier = modifier
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        TextField(
+            modifier = Modifier
+                .weight(1f)
+                .padding(end = 8.dp),
+            value = text,
+            onValueChange = { setText(it) },
+            singleLine = true,
+            colors = TextFieldDefaults.textFieldColors(backgroundColor = Color.Transparent)
+        )
+        Button(
+            modifier = Modifier
+                .padding(8.dp)
+                .clip(RoundedCornerShape(16.dp)),
+            enabled = text.isNotBlank(),
+            onClick = {
+                onClickAddItem(TodoItem(task = text))
+                setText("")
+            }
+        ) {
+            Text(text = "Add")
+        }
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun TodoScreenPreview() {
@@ -135,4 +178,10 @@ fun TodoScreenPreview() {
         TodoItem("Build dynamic UIs", TodoIcon.Square)
     )
     TodoList(items, {}, {})
+}
+
+@Preview(showBackground = true)
+@Composable
+fun TodoItemInputPreview() {
+    TodoItemInput(onClickAddItem = { TodoItem("Test") })
 }
