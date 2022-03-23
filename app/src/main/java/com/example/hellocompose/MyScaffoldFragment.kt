@@ -68,7 +68,7 @@ fun MyScaffold() {
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = "ScaffoldDisplayActivity")
+                    Text(text = "MyScaffold")
                 },
                 actions = {
                     IconButton(onClick = {
