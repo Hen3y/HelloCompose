@@ -11,8 +11,11 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -130,11 +133,14 @@ fun CardContent(name: String) {
                     contentDescription = "Android Logo",
                     modifier = Modifier.size(48.dp)
                 )
+
+                Spacer(modifier = Modifier.size(16.dp))
+
                 Column(modifier = Modifier.padding(start = 8.dp)) {
                     Text(text = "Hello,")
                     // copy() allows to customize existing predefined styles
                     Text(
-                        text = "Index: $name",
+                        text = name,
                         style = MaterialTheme.typography.h4.copy(
                             fontWeight = FontWeight.ExtraBold
                         )
@@ -168,8 +174,7 @@ fun CardContent(name: String) {
 fun Greeting(name: String) {
     // change Surface to Material Design Card
     Card(
-        backgroundColor = MaterialTheme.colors.primary,
-        modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
+        backgroundColor = MaterialTheme.colors.primary
     ) {
         CardContent(name = name)
     }
@@ -182,7 +187,6 @@ fun ScrollControlButton(scrollState: LazyListState, index: Int) {
     val coroutineScope = rememberCoroutineScope()
 
     Button(
-        modifier = Modifier.padding(8.dp),
         onClick = {
             coroutineScope.launch {
                 // scroll to item by index with animation
@@ -201,13 +205,22 @@ fun Greetings(names: List<String>) {
 
     Column {
         // control buttons
-        Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
+        Row(
+            modifier = Modifier
+                .padding(start = 16.dp, top = 16.dp, end = 16.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
             ScrollControlButton(scrollState, 0)
             ScrollControlButton(scrollState, LIST_SIZE - 1)
         }
 
         // use LazyColumn/LazyRow for large size list or collection to guarantee app performance
-        LazyColumn(state = scrollState) {
+        LazyColumn(
+            state = scrollState,
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             items(items = names) { name ->
                 Greeting(name = name)
             }
