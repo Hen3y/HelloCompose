@@ -4,21 +4,36 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.TweenSpec
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.Button
 import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
@@ -73,10 +88,12 @@ class TodoFragment : Fragment() {
 
 @Composable
 fun TodoScreen(todoViewModel: TodoViewModel) {
-    TodoList(
-        items = todoViewModel.todoItems,
-        onAddItem = { todoViewModel.addItem(it) },
-        onRemoveItem = { todoViewModel.removeItem(it) })
+    Surface {
+        TodoList(
+            items = todoViewModel.todoItems,
+            onAddItem = { todoViewModel.addItem(it) },
+            onRemoveItem = { todoViewModel.removeItem(it) })
+    }
 }
 
 @Composable
@@ -142,40 +159,107 @@ private fun TodoItemInput(
     onClickAddItem: (TodoItem) -> Unit
 ) {
     val (text, setText) = remember { mutableStateOf("") }
+    val (icon, setIcon) = remember { mutableStateOf(TodoIcon.Default) }
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
     val submit = {
-        onClickAddItem(TodoItem(task = text))
+        onClickAddItem(TodoItem(task = text, icon = icon))
         setText("")
         keyboardController?.hide()
     }
 
-    Row(
-        modifier = modifier
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically
+    Column(
+        modifier = modifier.padding(16.dp)
     ) {
-        TextField(
-            modifier = Modifier
-                .weight(1f)
-                .padding(end = 8.dp),
-            value = text,
-            onValueChange = { setText(it) },
-            singleLine = true,
-            colors = TextFieldDefaults.textFieldColors(backgroundColor = Color.Transparent),
-            keyboardActions = KeyboardActions(onDone = {
-                submit()
-            }),
-        )
-        Button(
-            modifier = Modifier
-                .padding(8.dp)
-                .clip(RoundedCornerShape(16.dp)),
-            enabled = text.isNotBlank(),
-            onClick = { submit() }
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(text = "Add")
+            TextField(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 8.dp),
+                value = text,
+                onValueChange = { setText(it) },
+                singleLine = true,
+                colors = TextFieldDefaults.textFieldColors(backgroundColor = Color.Transparent),
+                keyboardActions = KeyboardActions(onDone = {
+                    submit()
+                }),
+            )
+            Button(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .clip(RoundedCornerShape(16.dp)),
+                enabled = text.isNotBlank(),
+                onClick = { submit() }
+            ) {
+                Text(text = "Add")
+            }
+        }
+        AnimatedIconRow(
+            currentIcon = icon,
+            onIconChange = { setIcon(it) }
+        )
+    }
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+private fun AnimatedIconRow(
+    currentIcon: TodoIcon,
+    onIconChange: (TodoIcon) -> Unit,
+    modifier: Modifier = Modifier,
+    visible: Boolean = true,
+) {
+    // remember these specs so they don't restart if recomposing during the animation
+    // this is required since TweenSpec restarts on interruption
+    val enter = remember { fadeIn(animationSpec = TweenSpec(300, easing = FastOutLinearInEasing)) }
+    val exit = remember { fadeOut(animationSpec = TweenSpec(100, easing = FastOutSlowInEasing)) }
+
+    Box(
+        modifier = modifier.defaultMinSize(minHeight = 16.dp)
+    ) {
+        AnimatedVisibility(
+            visible = visible,
+            enter = enter,
+            exit = exit,
+        ) {
+            Row {
+                TodoIcon.values().forEach { icon ->
+
+                    val isSelected = icon == currentIcon
+
+                    val tint =
+                        if (isSelected) MaterialTheme.colors.onSurface
+                        else MaterialTheme.colors.onSurface.copy(alpha = 0.6f)
+
+                    IconButton(
+                        modifier = Modifier.weight(1f),
+                        onClick = {
+                            onIconChange(icon)
+                        }) {
+                        Column {
+                            Icon(
+                                imageVector = icon.imageVector,
+                                contentDescription = stringResource(id = icon.contentDescription),
+                                tint = tint
+                            )
+                            if (isSelected) {
+                                Box(
+                                    Modifier
+                                        .padding(top = 3.dp)
+                                        .width(icon.imageVector.defaultWidth)
+                                        .height(1.dp)
+                                        .background(tint)
+                                )
+                            } else {
+                                Spacer(modifier = Modifier.height(4.dp))
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
