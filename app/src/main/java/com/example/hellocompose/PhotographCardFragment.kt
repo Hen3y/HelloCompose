@@ -22,6 +22,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,7 +35,7 @@ class PhotographCardFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         return ComposeView(requireContext()).apply {
             setContent {
                 HelloComposeTheme {
@@ -46,7 +47,6 @@ class PhotographCardFragment : Fragment() {
 }
 
 @Composable
-// 自定义compose组件最好root的modifier暴露出去
 fun PhotographerCard(modifier: Modifier = Modifier) {
     Row(
         // modifiers的顺序影响作用效果
@@ -80,10 +80,22 @@ fun PhotographerCard(modifier: Modifier = Modifier) {
     }
 }
 
+@Composable
+fun CardInContainer() {
+    // 自定义compose组件最好root的modifier暴露出去
+    // 外部modifier将组件视为content
+    PhotographerCard(
+        modifier = Modifier
+            .background(Color.Green)
+            .padding(16.dp)
+    )
+}
+
 @Preview(showBackground = true)
 @Composable
 fun PhotographerCardPreview() {
     HelloComposeTheme {
         PhotographerCard()
+//        CardInContainer()
     }
 }

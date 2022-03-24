@@ -1,6 +1,5 @@
 package com.example.hellocompose
 
-import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -203,29 +202,32 @@ fun Greetings(names: List<String>) {
     // 记录滚动位置
     val scrollState = rememberLazyListState()
 
-    Column {
-        // control buttons
-        Row(
-            modifier = Modifier
-                .padding(start = 16.dp, top = 16.dp, end = 16.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            ScrollControlButton(scrollState, 0)
-            ScrollControlButton(scrollState, LIST_SIZE - 1)
-        }
+    Surface {
+        Column {
+            // control buttons
+            Row(
+                modifier = Modifier
+                    .padding(start = 16.dp, top = 16.dp, end = 16.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                ScrollControlButton(scrollState, 0)
+                ScrollControlButton(scrollState, LIST_SIZE - 1)
+            }
 
-        // use LazyColumn/LazyRow for large size list or collection to guarantee app performance
-        LazyColumn(
-            state = scrollState,
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(items = names) { name ->
-                Greeting(name = name)
+            // use LazyColumn/LazyRow for large size list or collection to guarantee app performance
+            LazyColumn(
+                state = scrollState,
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(items = names) { name ->
+                    Greeting(name = name)
+                }
             }
         }
     }
+
 }
 
 @Composable
@@ -236,12 +238,13 @@ fun OnBoardingScreen(onClickContinue: () -> Unit) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "Hello Compose")
+            Text(
+                text = "Hello Compose",
+            )
             Button(
-                // modifier控制Button的外边距，contentPadding用于调整内边距
-                modifier = Modifier.padding(vertical = 24.dp),
-                // 将callback传递给onClick事件
-                onClick = onClickContinue
+                modifier = Modifier.padding(24.dp),
+                onClick = onClickContinue,
+                contentPadding = PaddingValues(8.dp)
             ) {
                 Text(text = "Continue")
             }
@@ -249,12 +252,12 @@ fun OnBoardingScreen(onClickContinue: () -> Unit) {
     }
 }
 
-@Preview(
-    showBackground = true,
-    widthDp = 320,
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-    name = "DefaultDarkPreview"
-)
+//@Preview(
+//    showBackground = true,
+//    widthDp = 320,
+//    uiMode = Configuration.UI_MODE_NIGHT_YES,
+//    name = "DefaultDarkPreview"
+//)
 @Preview(showBackground = true, widthDp = 320, name = "DefaultLightPreview")
 @Composable
 fun DefaultPreview() {
@@ -263,7 +266,7 @@ fun DefaultPreview() {
     }
 }
 
-@Preview(showBackground = true, widthDp = 320, heightDp = 320, name = "OnBoarding Preview")
+@Preview(showBackground = true, name = "OnBoarding Preview")
 @Composable
 fun OnBoardingScreenPreview() {
     HelloComposeTheme {
