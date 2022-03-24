@@ -41,7 +41,8 @@ enum class Screens(val screenName: String, val destination: Fragment) {
     LONG_CARD_LIST("LongCardList", LongCardListFragment()),
     MY_SCAFFOLD("MyScaffold", MyScaffoldFragment()),
     PHOTOGRAPHER_CARD("PhotographerCard", PhotographCardFragment()),
-    TODO_LIST("TodoList", TodoFragment())
+    TODO_LIST("TodoList", TodoFragment()),
+    HELLO_COMPOSE("HelloCompose", HelloComposeFragment()),
 }
 
 @Composable
